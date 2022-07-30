@@ -1,23 +1,43 @@
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SpiderFollow : MonoBehaviour
 {
-    public Transform transformJugador;
+    //public Transform transformJugador;
 
-    [SerializeField] float enemySpeed = 5f;
+    public int numSpider;
     public Animator _spiderAnim;
+    public GameObject _spider;
     public Rigidbody rb;
-    public float speed = 6;
-    public int vida = 100; 
-
+    public float speed = 5;
+    public int vida = 100;
+    public GameObject player;
+    GameObject SceneMan;
     
+    public int NumSpider()
+    {
+        string nameSpider = rb.name;
+        int v = (int)char.GetNumericValue(nameSpider, 7);
+        numSpider = v;
+        //Debug.Log("Spider Num " + numSpider);
+        return numSpider;
+      
+    }
+
+    void ReportManager()
+    {
+        SceneMan = GameObject.FindWithTag("SceneManager");
+        //SceneMan.GetComponent<SceneManager>().ListarSpider(NumSpider(), 1, IsDead(), transform.position, transform.rotation);
+
+    }
+
 
     void LookAt()
     {
 
-        transform.LookAt(transformJugador);
+        transform.LookAt(player.transform);
 
     }
 
@@ -25,7 +45,7 @@ public class SpiderFollow : MonoBehaviour
     float ChequearDistancia()
     {
 
-        float dist = Vector3.Distance(transform.position, transformJugador.position);
+        float dist = Vector3.Distance(transform.position, player.transform.position);
         //Debug.Log(dist);
         return dist;
 
@@ -33,7 +53,7 @@ public class SpiderFollow : MonoBehaviour
     void SeguirJugador()
     {
 
-        transform.position = Vector3.MoveTowards(transform.position, transformJugador.position, enemySpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
             _spiderAnim.SetBool("isWalking", true); 
             _spiderAnim.SetBool("isAttacking", false);
             _spiderAnim.SetBool("isDead", false);
@@ -58,16 +78,18 @@ public class SpiderFollow : MonoBehaviour
 
         GameObject otherObject = collision.gameObject;
 
-
-        if (otherObject != null)
-        {
-            if (collision.gameObject.name == "Maledetto" && _spiderAnim.GetBool("isAttacking"))
+        //Debug.Log("Enter Coll on  " + collision.gameObject.tag);
+        //if (otherObject != null)
+       // {
+            if (collision.gameObject.tag == "Player" && _spiderAnim.GetBool("isAttacking"))
             {
-                //Debug.Log("Hit on  " + collision.gameObject.name);
+                //_spiderAnim.GetBool("isAttacking");
                 otherObject.GetComponent<PlayerScript>().BajaVida(40);
+                Debug.Log("Hit on  " + collision.gameObject.name);
+                
 
             }
-        }
+       // }
            
     }
 
@@ -76,17 +98,18 @@ public class SpiderFollow : MonoBehaviour
     {
 
         GameObject otherObject = collision.gameObject;
+        //Debug.Log("Stay Coll on  " + collision.gameObject.tag);
 
-
-        if (otherObject != null)
+        //if (otherObject != null)
+        // {
+        if (collision.gameObject.tag == "Player" && _spiderAnim.GetBool("isAttacking"))
         {
-            if (collision.gameObject.name == "Maledetto" && _spiderAnim.GetBool("isAttacking"))
-            {
-                //Debug.Log("Hit on  " + collision.gameObject.name);
+                //_spiderAnim.GetBool("isAttacking");
+                Debug.Log("Hit on  " + collision.gameObject.name);
                 otherObject.GetComponent<PlayerScript>().BajaVida(40);
 
             }
-        }
+        //}
             
     }
 
@@ -96,6 +119,7 @@ public class SpiderFollow : MonoBehaviour
         if (vida <= 0)
         {
             _spiderAnim.SetBool("isDead", true);
+            _spiderAnim.SetBool("isAttacking", false);
             return true;
         } else
         {
@@ -112,12 +136,16 @@ public class SpiderFollow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         rb = GetComponent<Rigidbody>();
+        player = GameObject.FindWithTag("Player");
     }
 
     // Update is called once per frame
     void Update()
     {
+        NumSpider();
+        ReportManager();
         if (IsDead() == false)
         {
             float distancia = ChequearDistancia();
@@ -125,13 +153,14 @@ public class SpiderFollow : MonoBehaviour
             //MovimientoPlayer();
 
             LookAt();
-            if (distancia > 5.4f)
+            if (distancia > 5.3f)
             {
                 SeguirJugador();
             }
-            if (distancia <= 5.4f)
+            if (distancia <= 5.3f)
             {
-                AtacarJugador();
+                SeguirJugador();
+               AtacarJugador();
             }
 
         }

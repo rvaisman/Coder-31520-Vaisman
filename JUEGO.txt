@@ -1,0 +1,3 @@
+El juego se maneja con las flechas de cursor y espacio
+Con espacio patea, flechas de cursor o AWSD para moverse
+No tiene cambio de escena aun, solo una prueba con X y C, aunque el singleton aun no funciona
